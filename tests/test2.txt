@@ -1,0 +1,23 @@
+DEFINE $_NumeroUno
+DEFINE $_NumeroDos
+DP $_NumeroUno ASIG 670
+DP $_NumeroDos ASIG 670
+DEFINE $_Cond
+DP $_Cond > $_NumeroUno $_NumeroDos
+if ($_Cond) {
+DEFINE $_texto
+DP $_texto ASIGN #Numero Uno es mayo a Numero Dos#
+MOSTAR($_texto)
+} else {
+DP $_Cond == $_NumeroUno $_NumeroDos
+if ($_Cond) {
+DEFINE texto
+DP texto ASIGN #Numero Uno es igual a Numero Dos#
+MOSTRAR(texto)
+} else {
+DEFINE $_texto
+DP $_texto ASIGN #Numero Uno es menor a Numero Dos#
+5
+MOSTAR($_texto)
+}
+}

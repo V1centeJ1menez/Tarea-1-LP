@@ -1,0 +1,46 @@
+··············· GRAMATICA ··············· 
+
+EBNF General
+digito ::= ’1’ | ’2’ | ’3’ | ’4’ | ’5’ | ’6’ | ’7’ | ’8’ | ’9’
+digito_o_cero ::= digito | ’0’
+entero ::= (digito {digito_o_cero}) | ’0’
+booleano ::= ’True’ | ’False’
+string ::= ’#’ {A-Z | a-z | digito_o_cero | ’ ’} ’#’
+tipo ::= ’int’ | ’bool’ | ’string’
+oper_un ::= ’ASIG’
+oper_bin ::= ’+’ | ’*’ | ’>’ | ’==’
+operando ::= variable | entero | booleano | string
+linea ::= declaracion | procesar | condicional | mostrar
+variable ::= ’$_’ (A-Z) {A_Z | a-z}
+declaracion ::= ’DEFINE’ variable
+procesar ::= ’DP’ variable ((oper_un operando) | (oper_bin operando operando))
+condicional ::= ’if(’ variable ’) {’ {linea} ’} else {’ {linea} ’}’
+mostrar ::= ’MOSTRAR(’ variable ’)’
+
+··············· CONSIDERACIONES ··············· 
+
+- Se destaca que la cantidad de espacio entre palabras es indeterminada.
+- No van a ver lineas vacias.
+- Cada linea de codigo debe terminar con un salto de linea.
+- La identacion no afecta la ejecucin del programa.
+- La cantidad de condicionales anidadas es hasta 3 veces.
+-Todas las funciones deben ir comentadas con el siguiente formato:
+
+’’’
+***
+Parametro 1 : Tipo
+Parametro 2 : Tipo
+...
+***
+Tipo de Retorno o None
+***
+Breve descripcion de la funcion y el retorno
+’’’
+
+
+··············· ERRORES ··············· 
+
+- Mal Sintaxis: La linea (N) no está bien escrita.
+- Variable No Definida: La variable de nombre (nombre) no ha sido definida o no se le ha asignad valor en la línea (N).
+- Tipo Incompatible: La operación DP o condicional en la línea (N) es incompatible al tipo de dato.
+- Varianle Ya Definida: La variable de nombre (nombre) ya se encuentra definida.

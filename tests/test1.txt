@@ -1,0 +1,12 @@
+DEFINE $_Largo
+DEFINE $_Ancho
+DEFINE $_Area
+DEFINE $_Texto
+DP $_Largo ASIG 6
+DP $_Ancho ASIG 5
+DP $_Area * $_Largo $_Ancho
+DP $_Texto ASIG #La altura del rectangulo es #
+DP $_Texto + $_Texto $_Area
+DP $_Condicion > $_Largo 3
+MOSTRAR($_Texto)
+ 
