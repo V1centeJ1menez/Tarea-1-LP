@@ -1,3 +1,10 @@
+··············· ABSTRACT ··············· 
+
+Definir patrones
+Generar tokens (tokenizer, lexer)
+Construir parser (estructura sintactica)
+construir ast ()
+
 ··············· GRAMATICA ··············· 
 
 EBNF General
@@ -24,6 +31,7 @@ mostrar ::= ’MOSTRAR(’ variable ’)’
 - Cada linea de codigo debe terminar con un salto de linea.
 - La identacion no afecta la ejecucin del programa.
 - La cantidad de condicionales anidadas es hasta 3 veces.
+- Las operaciones pueden hacerse solo una a la vez y tienen una variable de destinto y uno o dos operandos.
 -Todas las funciones deben ir comentadas con el siguiente formato:
 
 ’’’
@@ -36,6 +44,9 @@ Tipo de Retorno o None
 ***
 Breve descripcion de la funcion y el retorno
 ’’’
+
+- Arbol sintactico da el orden de ejecución del programa. Dada por la gamatica libre de contexto no ambiguas.
+- Resolucion de ambiguedades con precedencia y asociatividad.
 
 
 ··············· ERRORES ··············· 

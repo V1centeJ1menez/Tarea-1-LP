@@ -1,3 +1,11 @@
+from tokenizer import Tokenizer
 
-with open('.tests/test1.txt', 'r') as codigo_fuente:
-    pass
+if __name__ == "__main__":
+
+    # Leer el archivo codigo.txt
+    with open('codigo.txt', 'r') as f:
+        codigo_fuente = f.readlines()
+
+    # Tokenización
+    tokenizer = Tokenizer(codigo_fuente)
+    tokens = tokenizer.tokenizar()
