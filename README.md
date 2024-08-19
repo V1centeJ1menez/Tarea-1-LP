@@ -1,9 +1,9 @@
-#Intérprete de Código PySimplex
+# Intérprete de Código PySimplex
 
-###Autor: Vicente Andrés Jiménez Sepúlveda  
-###Rol: 202373523-K
+### Autor: Vicente Andrés Jiménez Sepúlveda  
+### Rol: 202373523-K
 
-##Descripción
+## Descripción
 
 Este proyecto es un intérprete simple que procesa un código personalizado escrito en un formato específico, con soporte para declaraciones de variables, operaciones unarias y binarias, y estructuras de control condicional como `if-else`. El objetivo principal del programa es interpretar el código de entrada, generar un archivo de código Python ejecutable (`codigo_interpretado.py`) y, en algunos casos, generar un archivo de salida (`output.txt`).
 
