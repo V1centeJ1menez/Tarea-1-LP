@@ -1,20 +1,18 @@
-DEFINE $_A
-DP $_A ASIG 5
-DEFINE $_B
-DP $_B ASIG  10
-DEFINE $_Resultado
-DP $_Resultado + $_A $_B 
-MOSTRAR($_Resultado) 
-DEFINE $_Nombre
-DP $_Nombre ASIG #Juan#
-DEFINE $_Saludo
-DP $_Saludo + #Hola, # $_Nombre  
-MOSTRAR($_Saludo)  
-DEFINE $_Contador
-DP $_Contador ASIG 10
-DEFINE $_Result
-DP $_Result == $_Contador 10
-MOSTRAR($_Result) 
+• codigo.txt
+DEFINE $_Largo
+DEFINE $_Ancho
+DEFINE $_Area
+DEFINE $_Texto
+DP $_Largo ASIG 6
+DP $_Ancho ASIG 5
+DP $_Area * $_Largo $_Ancho
+DP $_Texto ASIG #La altura del rectangulo es #
+DP $_Texto + $_Texto $_Area
+MOSTRAR($_Texto)
+• output.txt
+La altura del rectangulo es 30
+
+• codigo.txt
 DEFINE $_NumeroUno
 DEFINE $_NumeroDos
 DP $_NumeroUno ASIG 670
@@ -25,7 +23,7 @@ if ($_Cond) {
     DEFINE $_Texto
     DP $_Texto ASIG #Numero Uno es mayo a Numero Dos#
     MOSTRAR($_Texto)
-} else {  
+} else {
     DP $_Cond == $_NumeroUno $_NumeroDos
     if ($_Cond) {
         DEFINE $_Texto
@@ -37,3 +35,5 @@ if ($_Cond) {
         MOSTRAR($_Texto)
     }
 }
+• output.txt
+Numero Uno es igual a Numero Dos
