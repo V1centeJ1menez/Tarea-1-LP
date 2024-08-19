@@ -1,7 +1,7 @@
 from Interprete import analizar_sintaxis, inicializar_archivo
 '''
     ***
-    Parametro 1 : None
+    Parametros: None
     ***
     Tipo de Retorno : None
     ***
@@ -16,7 +16,7 @@ from Interprete import analizar_sintaxis, inicializar_archivo
     ***
 '''
 def main():
-    with open("codigo.txt", 'r') as archivo:
+    with open("./codigos/codigo.txt", 'r') as archivo:
         contenido = archivo.read()
 
     # Analizar con un límite de 4 niveles de anidamiento
