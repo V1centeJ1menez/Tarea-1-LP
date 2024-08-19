@@ -1,1 +1,1 @@
-La altura del rectangulo es 30
+Numero Uno es igual a Numero Dos
