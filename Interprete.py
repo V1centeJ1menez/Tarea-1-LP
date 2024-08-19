@@ -100,8 +100,8 @@ def levantar_error(tipo, numero, agregado):
         raise TypeError(f'Tipo Incompatible: La operación DP o condicional en la línea {numero} es incompatible al tipo de dato. {agregado}')
     elif tipo == 'Nombre':
         raise NameError(f'Variable No Definida: La variable de nombre {agregado} no ha sido definida o no se le ha asignad valor en la línea {numero}.')
-    elif tipo == 'variableExistente':
-        raise ValueError()
+    elif tipo == 'VariableExistente':
+        raise ValueError(f'Variable Ya Definida: La variable de nombre {agregado} ya se encuentra definida. Error en la linea {numero}')
 
 '''
 ***
@@ -117,79 +117,141 @@ def inicializar_archivo():
     with open("codigo_interpretado.py", 'w') as archivo:
         pass 
 
+def interpretar_operacion(tokens, archivo, indentacion):
+    # Declaración de variables
+    if tokens[0] == 'DEFINE':
+        nombre_variable = tokens[1].replace("$_", "")
+
+        if nombre_variable in variables:
+            levantar_error('variableExistente', indice + 1, nombre_variable)
+        
+        # Si no está definida, se procede a declararla
+        variables[nombre_variable] = None
+        archivo.write(f'{"\t" * indentacion}{nombre_variable} = None\n')
+
+    elif tokens[0] == 'DP':
+        variableDestino = tokens[1].replace("$_", "")
+        operador = tokens[2]
+        valorUno, tipoUno = interpretar_valor(tokens[3])
+
+        # Si es un tipo 'variable', obtenemos su valor real
+        if tipoUno == 'variable':
+            if valorUno in variables:
+                contenidoValorUno = variables[valorUno]
+                tipoUno = type(contenidoValorUno).__name__
+                valorUno = contenidoValorUno  # Actualizar con el valor real
+            else:
+                levantar_error("Nombre", indice + 1, valorUno)
+        
+        if operador == 'ASIG':
+            archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno}\n')
+            variables[variableDestino] = valorUno  # Actualizamos el valor en el diccionario
+        else:
+            valorDos, tipoDos = interpretar_valor(tokens[4])
+
+            if tipoDos == 'variable':
+                if valorDos in variables:
+                    contenidoValorDos = variables[valorDos]
+                    tipoDos = type(contenidoValorDos).__name__
+                    valorDos = contenidoValorDos  # Actualizar con el valor real
+                else:
+                    levantar_error("NoDefinida", indice + 1, valorDos)
+
+            # Validar y procesar la operación binaria
+            if operador == '+':
+                if tipoUno == 'str' or tipoDos == 'str':
+                    # Manejo de concatenación de strings
+                    archivo.write(f'{"\t" * indentacion}{variableDestino} = str({valorUno}) {operador} str({valorDos})\n')
+                    variables[variableDestino] = str(valorUno) + str(valorDos)  # Actualizar el valor concatenado
+                elif tipoUno == 'int' and tipoDos == 'int':
+                    # Manejo de suma de enteros
+                    archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno} {operador} {valorDos}\n')
+                    variables[variableDestino] = valorUno + valorDos  # Actualizar el valor de la suma
+                else:
+                    levantar_error("Tipodato", indice + 1, "Error en la suma. Tipos incompatibles.")
+
+            elif operador == '*':
+                if tipoUno == 'int' and tipoDos == 'int':
+                    # Manejo de multiplicación de enteros
+                    archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno} {operador} {valorDos}\n')
+                    variables[variableDestino] = valorUno * valorDos  # Actualizar el valor de la multiplicación
+                else:
+                    levantar_error("Tipodato", indice + 1, "Error en la multiplicación. Tipos incompatibles.")
+
+            elif operador == '>':
+                if tipoUno == 'int' and tipoDos == 'int':
+                    # Manejo de comparación mayor que
+                    archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno} {operador} {valorDos}\n')
+                    variables[variableDestino] = valorUno > valorDos  # Actualizar el valor de la comparación
+                else:
+                    levantar_error("Tipodato", indice + 1, "Error en la comparación. Tipos incompatibles.")
+
+            elif operador == '==':
+                if tipoUno == tipoDos:
+                    # Manejo de igualdad
+                    archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno} {operador} {valorDos}\n')
+                    variables[variableDestino] = valorUno == valorDos  # Actualizar el valor de la comparación
+                else:
+                    levantar_error("Tipodato", indice + 1, "Error en la comparación. Tipos incompatibles.")
+    
+    elif tokens[0] == 'MOSTRAR':
+        variableDestino = tokens[1].replace("$_", "")
+        archivo.write(f"{"\t" * indentacion}with open('output.txt', 'w') as archivo:\n{"\t" * (indentacion + 1)}archivo.write(str({variableDestino}))\n")
+
+def interpretar_bloque():
+    pass 
+
 
 def interpretar(tokens):
     # Abre el archivo en modo 'a' para escribir en el archivo de código generado
+    indentacion = 0
     with open("codigo_interpretado.py", 'a') as archivo:
+
         if isinstance(tokens, tuple):
-            # Declaración de variables
-            if tokens[0] == 'DEFINE':
-                nombre_variable = tokens[1].replace("$_", "")
-                variables[nombre_variable] = None
-                archivo.write(f'{nombre_variable} = None\n')
-
-            elif tokens[0] == 'DP':
-                variableDestino = tokens[1].replace("$_", "")
-                operador = tokens[2]
-                valorUno, tipoUno = interpretar_valor(tokens[3])
-
-                # Si es un tipo 'variable', obtenemos su valor real
-                if tipoUno == 'variable':
-                    if valorUno in variables:
-                        contenidoValorUno = variables[valorUno]
-                        tipoUno = type(contenidoValorUno).__name__
-                    else:
-                        levantar_error("nombre", indice + 1,valorUno )
-                
-                if operador == 'ASIG':
-                    archivo.write(f'{variableDestino} = {valorUno}\n')
-                    variables[variableDestino] = valorUno
-                else:
-                    valorDos, tipoDos = interpretar_valor(tokens[4])
-
-                    if tipoDos == 'variable':
-                        if valorDos in variables:
-                            contenidoValorDos = variables[valorDos]
-                            tipoDos = type(contenidoValorDos).__name__
-                        else:
-                            levantar_error("nombre", indice + 1,valorDos )
-
-                    # Validar y procesar la operación binaria
-                    if operador == '+':
-                        if tipoUno == 'str' or tipoDos == 'str':
-                            archivo.write(f'{variableDestino} = str({valorUno}) {operador} str({valorDos})\n')
-                        elif tipoUno == 'int' and tipoDos == 'int':
-                            archivo.write(f'{variableDestino} = {valorUno} {operador} {valorDos}\n')
-                        else:
-                            levantar_error("Tipodato", indice + 1, "Error en la suma. Tipos incompatibles.")
-
-                    elif operador == '*':
-                        if tipoUno == 'int' and tipoDos == 'int':
-                            archivo.write(f'{variableDestino} = {valorUno} {operador} {valorDos}\n')
-                        else:
-                            levantar_error("Tipodato", indice + 1, "Error en la multiplicación. Tipos incompatibles.")
-
-                    elif operador == '>':
-                        if tipoUno == 'int' and tipoDos == 'int':
-                            archivo.write(f'{variableDestino} = {valorUno} {operador} {valorDos}\n')
-                        else:
-                            levantar_error("Tipodato", indice + 1, "Error en la comparación. Tipos incompatibles.")
-
-                    elif operador == '==':
-                        if tipoUno == tipoDos:
-                            archivo.write(f'{variableDestino} = {valorUno} {operador} {valorDos}\n')
-                        else:
-                            levantar_error("Tipodato", indice + 1, "Error en la comparación. Tipos incompatibles.")
-            
-            elif tokens[0] == 'MOSTRAR':
-                variableDestino = tokens[1].replace("$_", "")
-                archivo.write(f"with open('output.txt', 'w') as archivo:\n\tarchivo.write(str({variableDestino}))\n")
+            interpretar_operacion(tokens, archivo, indentacion)
         
         elif isinstance(tokens, list):
             # Manejo de bloques condicionales o instrucciones anidadas
-            # Aquí deberías procesar los bloques condicionales de manera similar
+            i = 0
             print(tokens)
-            pass
+            while i < len(tokens):  
+                if tokens[i][0] == 'if':
+                    #Verificar que la condicion sea una variable cque contenga un booleano o sea un booleano directamente
+                    # Si es asi, entonces agrega ('if condicion:\n')
+                    # Si no levanta un error de Tipodato, ya que el condicional no soporta otro tipo de dato
+                    condicion, tipo_condicion = interpretar_valor(tokens[i][1])
+                    if tipo_condicion == 'bool':
+                        archivo.write(f'{"\t"*indentacion}if {condicion}:\n')
+                    elif tipo_condicion == 'variable':
+                        if variables.get(condicion) is not None and isinstance(variables[condicion], bool):
+                            archivo.write(f'{"\t" * indentacion}if {condicion}:\n')
+                        else:
+                            levantar_error("Tipodato", indice + 1, f"La variable {condicion} no es booleana.")
+                    else:
+                        levantar_error("Tipodato", indice + 1, f"La condición {condicion} no es un booleano válido.")
+                    
+                elif tokens[i] == '{' or tokens[i]=='}':
+                    if tokens[i] == '{':
+                        # Este simbolo significa generar una tabulacion, ya que viene informacion correspondioente al if
+                        indentacion += 1
+                    elif tokens[i] == '}':
+                        # Este simbolo significa generar una tabulacion hacia atras, ya que o se cerró un if o se cerró un else 
+                        indentacion -= 1
+                elif tokens[i] == 'else':
+                    # Escribir un (else:\n) al mismo nivel de identacion que su if correspondiente, encargados de esto es el if anterior
+                    archivo.write(f'{"\t"*indentacion}{'else'}:\n')
+                    pass
+
+                elif isinstance(tokens[i], tuple):
+                    # Si es tupla debo hacer un analisis como el anterior, aqui se me presenta una confusiión, pero ya tengo la base de eso que es
+                    # la parte de arriba
+                    interpretar_operacion(tokens[i],archivo, indentacion)
+                
+                i += 1
+
+    # Depuración de variables
+    for nombre, valor in variables.items():
+        print(f"Clave: {nombre}, Valor: {valor}")
 
     # Leer y ejecutar el contenido del archivo
     with open("codigo_interpretado.py", 'r') as archivo:
@@ -300,7 +362,7 @@ def analizar_sintaxis(codigo_fuente, max_anidamiento):
     if stack_if or queue_else:
         levantar_error('Sintaxis',indice, "Bloques if-else incompletos al final del archivo")
 
-with open("codigo.txt", 'r') as archivo:
+with open("codigo1.txt", 'r') as archivo:
     contenido = archivo.read()
 
 # Analizar con un límite de 4 niveles de anidamiento

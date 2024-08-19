@@ -1,1 +1,1 @@
-Numero Uno es menor a Numero Dos
+La altura del rectangulo es 30

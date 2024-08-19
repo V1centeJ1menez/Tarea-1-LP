@@ -89,4 +89,4 @@ MOSTRAR(variable) , en la que escribe el contenido de la variable, seguido por u
 
 - Variable No Definida: La variable de nombre (nombre) no ha sido definida o no se le ha asignad valor en la línea (N).
 - Tipo Incompatible: La operación DP o condicional en la línea (N) es incompatible al tipo de dato.
-- Varianle Ya Definida: La variable de nombre (nombre) ya se encuentra definida.
+- Variable Ya Definida: La variable de nombre (nombre) ya se encuentra definida.
