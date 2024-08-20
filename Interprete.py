@@ -3,7 +3,6 @@ import re
 
 variables = {}
 
-
 def interpretar_valor(token):
     '''
         ***
@@ -55,7 +54,7 @@ def levantar_error(tipo, numero, agregado):
         raise SyntaxError(f'Mal Sintaxis: La linea {numero} no está bien escrita. {agregado}')
     elif tipo == 'Tipodato':
         raise TypeError(f'Tipo Incompatible: La operación DP o condicional en la línea {numero} es incompatible al tipo de dato. {agregado}')
-    elif tipo == 'Nombre':
+    elif tipo == 'NoDefinida':
         raise NameError(f'Variable No Definida: La variable de nombre {agregado} no ha sido definida o no se le ha asignad valor en la línea {numero}.')
     elif tipo == 'VariableExistente':
         raise ValueError(f'Variable Ya Definida: La variable de nombre {agregado} ya se encuentra definida. Error en la linea {numero}')
@@ -106,7 +105,7 @@ def interpretar_operacion(tokens, archivo, indentacion):
 
         # Verificar si la variable ya ha sido definida previamente
         if nombre_variable in variables:
-            levantar_error('variableExistente', indice + 1, nombre_variable)
+            levantar_error('VariableExistente', indice + 1, nombre_variable)
         
         # Si la variable no está definida, se agrega al diccionario con un valor inicial de None
         variables[nombre_variable] = None
@@ -115,6 +114,11 @@ def interpretar_operacion(tokens, archivo, indentacion):
     # Manejar la asignación y operaciones (DP)  
     elif tokens[0] == 'DP':
         variableDestino = tokens[1].replace("$_", "")
+
+        # Verificar si la variable de destino ha sido definida
+        if variableDestino not in variables:
+            levantar_error("NoDefinida", indice + 1, variableDestino)
+
         operador = tokens[2]
         valorUno, tipoUno = interpretar_valor(tokens[3])
 
@@ -125,7 +129,7 @@ def interpretar_operacion(tokens, archivo, indentacion):
                 tipoUno = type(contenidoValorUno).__name__
                 valorUno = contenidoValorUno  # Actualizar con el valor real de la variable
             else:
-                levantar_error("Nombre", indice + 1, valorUno)
+                levantar_error("NoDefinida", indice + 1, valorUno)
         
         # Manejo de la operación de asignación (ASIG)
         if operador == 'ASIG':

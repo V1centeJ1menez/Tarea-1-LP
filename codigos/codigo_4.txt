@@ -1,0 +1,3 @@
+DEFINE $_VarUno
+DP $_VarUno ASIG 10
+DP $_VarDos ASIG 20 

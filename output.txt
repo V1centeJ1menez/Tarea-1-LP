@@ -1,1 +1,0 @@
-El valor es mayor que 20 pero menor o igual a 30
