@@ -7,7 +7,10 @@
 
 Este proyecto implementa un intérprete para un lenguaje de programación sencillo llamado **PySimplex**. El intérprete lee un archivo de código fuente escrito en el lenguaje PySimplex, lo procesa y genera código Python ejecutable. El programa soporta operaciones básicas como declaraciones de variables, asignaciones, operaciones matemáticas, y estructuras condicionales (`if`, `else`).
 
+El intérprete utiliza **expresiones regulares** para identificar y analizar la sintaxis del código PySimplex. Estas expresiones permiten reconocer patrones específicos en el código, como la declaración de variables, las operaciones aritméticas, y las estructuras de control, asegurando que el código fuente sea interpretado correctamente.
+
 El propósito del intérprete es traducir el código fuente escrito en PySimplex a código Python válido, el cual se guarda en un archivo llamado `codigo_interpretado.py`. Luego, este archivo es ejecutado automáticamente, y cualquier salida del programa se guarda en `output.txt`.
+
 
 ## Estructura del Proyecto
 
@@ -46,5 +49,14 @@ El archivo `./codigos/codigo.txt` debe seguir el siguiente formato:
    ```
 Este ejemplo declara una variable, le asigna un valor, y luego lo muestra en el archivo de salida.
 ## Notas
-- El intérprete soporta un máximo de 4 niveles de anidamiento para estructuras condicionales (if-else).
+- El intérprete soporta un máximo de 4 estructuras condicionales (if-else) consecutivas. Aceptando algo como:
+   ```bash
+      if(True):
+         if(True):
+            #Primer if anidado
+            if(True):
+               #Segundo if anidado
+               if(True):
+                  #Tercer if anidado
+   ```
 - Cualquier error de sintaxis o tipo de dato en el código PySimplex generará una excepción con un mensaje descriptivo, indicando la línea del error.
