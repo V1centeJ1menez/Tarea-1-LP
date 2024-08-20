@@ -1,0 +1,44 @@
+DEFINE $_Numero
+DEFINE $_NumeroC
+DEFINE $_CondUno
+DP $_Numero ASIG 1
+DP $_CondUno > $_Numero 0
+if ($_CondUno) {
+    DEFINE $_CondDos
+    DP $_NumeroC + $_Numero 1
+    DP $_CondDos > $_NumeroC 10
+    if ($_CondDos) {
+        DEFINE $_CondTres
+        DP $_NumeroC * $_Numero 2
+        DP $_CondTres > $_NumeroC 20
+        if ($_CondTres) {
+            DEFINE $_Text
+            DP $_Text ASIG #El numero es positivo mayor que 10 y mayor que 20 cuando se duplica#
+            MOSTRAR($_Text)
+        } else {
+            DEFINE $_Text
+            DP $_Text ASIG #El numero es positivo mayor que 10 y menor o igual a 20 cuando se duplica#
+            MOSTRAR($_Text)
+        }
+    } else {
+        DEFINE $_CondTres
+        DP $_NumeroC * $_Numero 2
+        DP $_CondTres > $_NumeroC 10
+        if ($_CondTres) {
+            DEFINE $_Text
+            DP $_Text ASIG #El numero es positivo menor o igual a 10 y mayor que 10 cuando se duplica#
+            MOSTRAR($_Text)
+        } else {
+            DEFINE $_Text
+            DP $_Text ASIG #El numero es positivo menor o igual a 10 y menor o igual a 10 cuando se duplica#
+            MOSTRAR($_Text)
+        }
+    }
+} else {
+    DEFINE $_Text
+    DP $_Text ASIG #El numero ingresado no es un entero positivo#
+    MOSTRAR($_Text)
+}
+DEFINE $_TextEnd
+DP $_TextEnd ASIG #Fin del programa#
+MOSTRAR($_TextEnd)

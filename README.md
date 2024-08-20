@@ -5,21 +5,46 @@
 
 ## Descripción
 
-Este proyecto es un intérprete simple que procesa un código personalizado escrito en un formato específico, con soporte para declaraciones de variables, operaciones unarias y binarias, y estructuras de control condicional como `if-else`. El objetivo principal del programa es interpretar el código de entrada, generar un archivo de código Python ejecutable (`codigo_interpretado.py`) y, en algunos casos, generar un archivo de salida (`output.txt`).
+Este proyecto implementa un intérprete para un lenguaje de programación sencillo llamado **PySimplex**. El intérprete lee un archivo de código fuente escrito en el lenguaje PySimplex, lo procesa y genera código Python ejecutable. El programa soporta operaciones básicas como declaraciones de variables, asignaciones, operaciones matemáticas, y estructuras condicionales (`if`, `else`).
+
+El propósito del intérprete es traducir el código fuente escrito en PySimplex a código Python válido, el cual se guarda en un archivo llamado `codigo_interpretado.py`. Luego, este archivo es ejecutado automáticamente, y cualquier salida del programa se guarda en `output.txt`.
+
+## Estructura del Proyecto
+
+- **`main.py`**: Punto de entrada del programa. Lee el código fuente de un archivo, lo procesa utilizando el módulo `Interprete.py` y ejecuta el código Python generado.
+- **`Interprete.py`**: Contiene las funciones principales que analizan y procesan el código PySimplex. Aquí se maneja la lógica de interpretación y generación del código Python.
+- **`regexPatterns.py`**: Define los patrones de expresiones regulares utilizados para identificar y procesar los diferentes elementos del lenguaje PySimplex.
+- **`./codigos/codigo.txt`**: Archivo que contiene el código fuente en PySimplex que será interpretado. Se pueden agregar otros archivos de prueba con diferentes ejemplos de código en el directorio `./codigos`.
 
 ## Ejecución
 
 ### Requisitos
 
-- Python 3.x
-- Archivo de entrada `codigo.txt` con el código a interpretar.
+1. **Python 3.x**: Asegúrate de tener Python 3 instalado en tu sistema.
+2. **Archivos del proyecto**: Los archivos `main.py`, `Interprete.py`, `regexPatterns.py`, y `./codigos/codigo.txt` deben estar en la misma carpeta para que el intérprete funcione correctamente.
 
 ### Pasos para ejecutar el programa
 
-1. **Clonar el repositorio o copiar los archivos**: Asegúrate de tener todos los archivos necesarios en tu entorno de desarrollo.
+1. **Preparar el código fuente**: Asegúrate de que el archivo `codigo.txt` en la carpeta `./codigos` contiene el código en PySimplex que deseas interpretar. Puedes agregar otros archivos con ejemplos de código en este directorio.
 
-2. **Preparar el archivo de entrada**: El programa espera un archivo de entrada llamado `codigo.txt`, que debe estar en el mismo directorio que los archivos del programa.
+2. **Ejecutar el intérprete**: Abre una terminal en la carpeta donde se encuentran los archivos del proyecto y ejecuta el siguiente comando:
 
-3. **Ejecutar el programa**: Abre una terminal o línea de comandos, navega al directorio donde están los archivos, y ejecuta el siguiente comando:
    ```bash
-   python interprete.py
+   python3 main.py
+   ```
+3. **Resultado**: El programa generará un archivo codigo_interpretado.py con el código Python equivalente al código PySimplex que se procesó. Luego, este código se ejecutará automáticamente, y la salida se guardará en el archivo output.txt.
+
+4. **Ver el resultado**: Revisa el archivo output.txt para ver el resultado de la ejecución del código interpretado.
+
+## Ejemplos de Código PySimplex
+El archivo `./codigos/codigo.txt` debe seguir el siguiente formato:
+
+   ```bash
+      DEFINE $_variable
+      DP $_variable ASIG 5
+      MOSTRAR($_variable)
+   ```
+Este ejemplo declara una variable, le asigna un valor, y luego lo muestra en el archivo de salida.
+## Notas
+- El intérprete soporta un máximo de 4 niveles de anidamiento para estructuras condicionales (if-else).
+- Cualquier error de sintaxis o tipo de dato en el código PySimplex generará una excepción con un mensaje descriptivo, indicando la línea del error.

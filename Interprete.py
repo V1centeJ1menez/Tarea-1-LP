@@ -1,25 +1,27 @@
 from regexPatterns import patterns, string_regex,booleano_regex, entero_regex, variable_regex
 import re
-#import re
 
 variables = {}
 
-'''
-***
-Parametro 1 : token : str
-***
-Tipo de Retorno : tuple
-***
-La función interpretar_valor toma un token como parámetro y utiliza expresiones regulares para determinar su tipo. 
-Devuelve una tupla que contiene el valor interpretado del token y su tipo. 
-Si el token es un string, devuelve el string sin los caracteres '#' y el tipo 'str'. 
-Si el token es un booleano, devuelve True o False y el tipo 'bool'. 
-Si el token es un entero, devuelve el entero y el tipo 'int'. 
-Si el token es una variable, devuelve el nombre de la variable sin el prefijo '$_' y el tipo 'variable'. 
-Si el token no coincide con ninguna expresión regular, lanza una excepción ValueError.
-'''
+
 def interpretar_valor(token):
-    """Interpreta un token y devuelve su valor y tipo usando expresiones regulares."""
+    '''
+        ***
+        Parametros:
+        token (str): Representa un token del codigo pysimplex, puede ser un nombre de variable o un tipo de dato int, bool o str. 
+        ***
+        Retorno:
+        tupla (valor interpretado (str,bool, int), identidicador del tipo de dato del valor interpretado (str))
+        ***
+        La función interpretar_valor toma un token como parámetro y utiliza expresiones regulares para determinar su tipo. 
+        Devuelve una tupla que contiene el valor interpretado del token y su tipo. 
+        Si el token es un string, devuelve el string sin los caracteres '#' y el tipo 'str'. 
+        Si el token es un booleano, devuelve True o False y el tipo 'bool'. 
+        Si el token es un entero, devuelve el entero y el tipo 'int'. 
+        Si el token es una variable, devuelve el nombre de la variable sin el prefijo '$_' y el tipo 'variable'. 
+        Si el token no coincide con ninguna expresión regular, lanza una excepción ValueError.
+        ***
+    '''
     if re.fullmatch(string_regex, token):  # Es un string si coincide con la expresión regular para strings
         return f'"{token.strip('#')}"', 'str'
     elif re.fullmatch(booleano_regex, token):  # Es un booleano si coincide con la expresión regular para booleanos
@@ -31,21 +33,23 @@ def interpretar_valor(token):
     else:
         raise ValueError(f"Token no reconocido o tipo no compatible: {token}")
 
-'''
-***
-Parametro 1 : String
-Parametro 2 : int
-Parametro 3: String
-***
-Tipo de Retorno : None
-***
-La función levantar_error genera una excepción según su tipo con un 
-mensaje que indica el número de línea y una descripción adicional 
-del error. No retorna ningún valor (None).
-'''
-def levantar_error(tipo, numero, agregado):
 
-    if tipo == 'sintaxis':
+def levantar_error(tipo, numero, agregado):
+    '''
+        ***
+        Parametros:
+        tipo (str)
+        numero (int)
+        agregado (str)
+        ***
+        Retorno : None
+        ***
+        La función levantar_error genera una excepción según su tipo con un 
+        mensaje que indica el número de línea y una descripción adicional 
+        del error. No retorna ningún valor (None).
+        ***
+    '''
+    if tipo == 'Sintaxis':
         raise SyntaxError(f'Mal Sintaxis: La linea {numero} no está bien escrita. {agregado}')
     elif tipo == 'Tipodato':
         raise TypeError(f'Tipo Incompatible: La operación DP o condicional en la línea {numero} es incompatible al tipo de dato. {agregado}')
@@ -54,21 +58,46 @@ def levantar_error(tipo, numero, agregado):
     elif tipo == 'VariableExistente':
         raise ValueError(f'Variable Ya Definida: La variable de nombre {agregado} ya se encuentra definida. Error en la linea {numero}')
 
-'''
-***
-Parametros : None
-***
-Tipo de Retorno : None
-***
-La función inicializar_archivo abre el archivo "codigo_interpretado.py" en modo escritura ('w'), 
-lo que borra todo el contenido existente y deja el archivo en blanco. No retorna ningún valor (None).
-'''
+
 def inicializar_archivo():
+    '''
+        ***
+        Parametros: 
+        None
+        ***
+        Retorno: 
+        None
+        ***
+        La función inicializar_archivo abre el archivo "codigo_interpretado.py" en modo escritura ('w'), 
+        lo que borra todo el contenido existente y deja el archivo en blanco. No retorna ningún valor (None).
+        ***
+    '''
     # Abre el archivo en modo 'w' para borrar todo el contenido y comenzar en blanco
     with open("codigo_interpretado.py", 'w') as archivo:
         pass 
+    # Abre el archivo en modo 'w' para borrar todo el contenido y comenzar en blanco
+    with open("output.txt", 'w') as archivo:
+        pass 
 
 def interpretar_operacion(tokens, archivo, indentacion):
+    '''
+        ***
+        Parámetros:
+        - tokens (tuple): Una tupla que contiene los tokens que representan una operación específica.
+        - archivo (file object): Archivo abierto en el que se escribirá el código generado.
+        - indentacion (int): Nivel de indentación para formatear el código en el archivo.
+
+        ***
+        Retorno:
+        None
+        ***
+        La función `interpretar_operacion` procesa una operación específica representada por los tokens y la escribe en un archivo. 
+        Esta función puede manejar la declaración de variables (`DEFINE`), asignaciones y operaciones básicas (`DP`), y mostrar valores (`MOSTRAR`). 
+        Dependiendo de los tokens y el operador proporcionado, la función genera el código correspondiente en el archivo con la indentación adecuada. 
+        La función también gestiona el valor de las variables en un diccionario global llamado `variables`. 
+        Además, verifica si las variables utilizadas están definidas y maneja errores cuando los tipos de datos son incompatibles para ciertas operaciones.
+        ***
+    '''
     # Declaración de variables
     if tokens[0] == 'DEFINE':
         nombre_variable = tokens[1].replace("$_", "")
@@ -147,14 +176,23 @@ def interpretar_operacion(tokens, archivo, indentacion):
     
     elif tokens[0] == 'MOSTRAR':
         variableDestino = tokens[1].replace("$_", "")
-        archivo.write(f"{"\t" * indentacion}with open('output.txt', 'w') as archivo:\n{"\t" * (indentacion + 1)}archivo.write(str({variableDestino}))\n")
-
-def interpretar_bloque():
-    pass 
+        archivo.write(f"{"\t" * indentacion}with open('output.txt', 'a') as archivo:\n{"\t" * (indentacion + 1)}archivo.write(str({variableDestino}) + \"\\n\")\n")
 
 
 def interpretar(tokens):
-    # Abre el archivo en modo 'a' para escribir en el archivo de código generado
+    '''
+        ***
+        Parámetros:
+        - tokens (tuple or list): Representa una instrucción o un conjunto de instrucciones a interpretar.
+        ***
+        Retorno:
+        None
+        ***
+        La función `interpretar` procesa una lista o tupla de tokens que representan las operaciones a realizar y las escribe en un archivo Python para su posterior ejecución.
+        Maneja bloques de código, como condicionales `if` y `else`, ajusta la indentación para reflejar correctamente la estructura del código, y llama a la función `interpretar_operacion` para procesar cada operación individual.
+        Finalmente, ejecuta el contenido del archivo generado y muestra el estado de las variables después de la ejecución.
+        ***
+    '''
     indentacion = 0
     with open("codigo_interpretado.py", 'a') as archivo:
 
@@ -162,17 +200,12 @@ def interpretar(tokens):
             interpretar_operacion(tokens, archivo, indentacion)
         
         elif isinstance(tokens, list):
-            # Manejo de bloques condicionales o instrucciones anidadas
             i = 0
-            print(tokens)
-            while i < len(tokens):  
+            while i < len(tokens):
                 if tokens[i][0] == 'if':
-                    #Verificar que la condicion sea una variable cque contenga un booleano o sea un booleano directamente
-                    # Si es asi, entonces agrega ('if condicion:\n')
-                    # Si no levanta un error de Tipodato, ya que el condicional no soporta otro tipo de dato
                     condicion, tipo_condicion = interpretar_valor(tokens[i][1])
                     if tipo_condicion == 'bool':
-                        archivo.write(f'{"\t"*indentacion}if {condicion}:\n')
+                        archivo.write(f'{"\t" * indentacion}if {condicion}:\n')
                     elif tipo_condicion == 'variable':
                         if variables.get(condicion) is not None and isinstance(variables[condicion], bool):
                             archivo.write(f'{"\t" * indentacion}if {condicion}:\n')
@@ -181,53 +214,56 @@ def interpretar(tokens):
                     else:
                         levantar_error("Tipodato", indice + 1, f"La condición {condicion} no es un booleano válido.")
                     
-                elif tokens[i] == '{' or tokens[i]=='}':
-                    if tokens[i] == '{':
-                        # Este simbolo significa generar una tabulacion, ya que viene informacion correspondioente al if
-                        indentacion += 1
-                    elif tokens[i] == '}':
-                        # Este simbolo significa generar una tabulacion hacia atras, ya que o se cerró un if o se cerró un else 
-                        indentacion -= 1
+                elif tokens[i] == '{':
+                    # Inicia un nuevo bloque, aumentar indentación
+                    indentacion += 1
+
+                    # Verificar si el próximo token es un '}', lo que indicaría un bloque vacío
+                    if i + 1 < len(tokens) and tokens[i + 1] == '}':
+                        archivo.write(f'{"\t" * indentacion}pass\n')
+                        # Saltar el próximo token '}' para evitar escribir 'pass' nuevamente
+                        i += 1
+
+                elif tokens[i] == '}':
+                    # Termina un bloque, disminuir indentación
+                    indentacion -= 1
+
                 elif tokens[i] == 'else':
-                    # Escribir un (else:\n) al mismo nivel de identacion que su if correspondiente, encargados de esto es el if anterior
-                    archivo.write(f'{"\t"*indentacion}{'else'}:\n')
-                    pass
+                    # Escribir 'else:' al mismo nivel de indentación que el if correspondiente
+                    archivo.write(f'{"\t" * indentacion}else:\n')
+
+                    # Verificar si el próximo token es un '{', lo que indicaría el inicio de un bloque
+                    if i + 1 < len(tokens) and tokens[i + 1] == '{':
+                        # Verificar si el bloque else es vacío
+                        if i + 2 < len(tokens) and tokens[i + 2] == '}':
+                            archivo.write(f'{"\t" * (indentacion + 1)}pass\n')
+                            # Saltar el siguiente '{' y '}' para evitar escribir 'pass' nuevamente
+                            i += 2
 
                 elif isinstance(tokens[i], tuple):
-                    # Si es tupla debo hacer un analisis como el anterior, aqui se me presenta una confusiión, pero ya tengo la base de eso que es
-                    # la parte de arriba
-                    interpretar_operacion(tokens[i],archivo, indentacion)
-                
+                    # Si es una tupla, se procesa como operación
+                    interpretar_operacion(tokens[i], archivo, indentacion)
+
                 i += 1
 
-    # Depuración de variables
-    for nombre, valor in variables.items():
-        print(f"Clave: {nombre}, Valor: {valor}")
 
-    # Leer y ejecutar el contenido del archivo
-    with open("codigo_interpretado.py", 'r') as archivo:
-        contenido = archivo.read()
-
-    exec(contenido)
-
-
-
-
-'''
-***
-Parametro 1 : String
-Parametro 2 : int
-...
-***
-Tipo de Retorno o None
-***
-La función analizar_sintaxis analiza el código fuente para detectar y 
-procesar declaraciones, operaciones y estructuras de control como if y
-else. Verifica la correcta anidación y levanta errores si encuentra
-problemas de sintaxis. No retorna ningún valor (None).
-'''
 def analizar_sintaxis(codigo_fuente, max_anidamiento):
-    
+    '''
+        ***
+        Parametros: 
+        codigo_fuente (str)
+        max_anidamiento (int)
+        ...
+        ***
+        Retorno:
+        None
+        ***
+        La función analizar_sintaxis analiza el código fuente para detectar y 
+        procesar declaraciones, operaciones y estructuras de control como if y
+        else. Verifica la correcta anidación y levanta errores si encuentra
+        problemas de sintaxis. No retorna ningún valor (None).
+        ***
+    '''
     lineas = codigo_fuente.splitlines()
     global indice
     indice = 0
@@ -243,7 +279,7 @@ def analizar_sintaxis(codigo_fuente, max_anidamiento):
 
     while indice < len(lineas):
         linea = lineas[indice].strip()
-
+    
         # Detectar declaraciones, procesamientos o mostrar
         if patterns['declaracion'].search(linea) or patterns['procesar'].search(linea) or patterns['mostrar'].search(linea):
             
