@@ -22,7 +22,7 @@ def main():
 
     # Abrir el archivo que contiene el código fuente en PySimplex
     # El archivo 'codigo.txt' se encuentra en el directorio './codigos'
-    with open("./codigos/codigo_4.txt", 'r') as archivo:
+    with open("./codigos/codigo.txt", 'r') as archivo:
         contenido = archivo.read() # Leer todo el contenido del archivo
 
     # Inicializar el archivo de salida ('codigo_interpretado.py'), asegurando que esté vacío
