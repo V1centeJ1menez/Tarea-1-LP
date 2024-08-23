@@ -1,19 +1,21 @@
-DEFINE $_Valor
-DP $_Valor ASIG 25
-DEFINE $_Texto
-DEFINE $_A
-DP           $_A > $_Valor 30
-if($_A){
-    DP $_Texto ASIG #El valor es mayor que 30#
-    MOSTRAR($_Texto)
-}else {
-    DP      $_A > $_Valor 20
-    if($_A){
-        DP $_Texto ASIG #El valor es mayor que 20 pero menor o igual a 30#
-        DP $_Texto + $_Texto True
-        MOSTRAR($_Texto)
+DEFINE $_Var
+DEFINE $_Cond
+DP $_Var ASIG 1
+DP $_Cond == $_Var 1
+MOSTRAR($_Var)
+if($_Cond) {
+    DEFINE $_Var
+    DP $_Var ASIG 2
+    MOSTRAR($_Var)
+    if($_Cond){
+        DEFINE $_Var
+        DP $_Var ASIG #HOLA#
+        MOSTRAR($_Var)
     }else{
-        DP $_Texto ASIG #El valor es 20 o menor#
-        MOSTRAR($_Texto)
     }
+} else {
+    DEFINE $_Var 
+    DP $_Var ASIG # ELSE#
+    MOSTRAR($_Var)
 }
+MOSTRAR($_Var)

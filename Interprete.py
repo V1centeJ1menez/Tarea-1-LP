@@ -1,7 +1,9 @@
 from regexPatterns import patterns, string_regex,booleano_regex, entero_regex, variable_regex
 import re
 
-variables = {}
+ambitos = [{}]
+global instruccion
+instruccion = 0
 
 def interpretar_valor(token):
     '''
@@ -55,7 +57,7 @@ def levantar_error(tipo, numero, agregado):
     elif tipo == 'Tipodato':
         raise TypeError(f'Tipo Incompatible: La operación DP o condicional en la línea {numero} es incompatible al tipo de dato. {agregado}')
     elif tipo == 'NoDefinida':
-        raise NameError(f'Variable No Definida: La variable de nombre {agregado} no ha sido definida o no se le ha asignad valor en la línea {numero}.')
+        raise NameError(f'Variable No Definida: La variable de nombre {agregado} no ha sido definida o no se le ha asignado valor en la línea {numero}.')
     elif tipo == 'VariableExistente':
         raise ValueError(f'Variable Ya Definida: La variable de nombre {agregado} ya se encuentra definida. Error en la linea {numero}')
 
@@ -80,153 +82,197 @@ def inicializar_archivo():
     with open("output.txt", 'w') as archivo:
         pass 
 
-def interpretar_operacion(tokens, archivo, indentacion):
+
+def buscar_variable(nombre_variable):
     '''
         ***
         Parámetros:
-        - tokens (tuple): Una tupla que contiene los tokens que representan una operación específica.
-        - archivo (file object): Archivo abierto en el que se escribirá el código generado.
-        - indentacion (int): Nivel de indentación para formatear el código en el archivo.
+        - nombre_variable (str): El nombre de la variable que se desea buscar en los ámbitos actuales.
 
         ***
         Retorno:
-        None
+        tuple: Una tupla que contiene:
+        - El valor de la variable si se encuentra (cualquiera que sea su valor), o `None` si no se encuentra.
+        - Un valor booleano `True` si la variable existe en alguno de los ámbitos, o `False` si no existe.
+
         ***
-        La función interpretar_operacion procesa una operación específica representada por los tokens y la escribe en un archivo.
-        Esta función puede manejar la declaración de variables (`DEFINE`), asignaciones y operaciones básicas (`DP`), y mostrar valores (`MOSTRAR`).
-        Dependiendo de los tokens y el operador proporcionado, la función genera el código correspondiente en el archivo con la indentación adecuada.
-        La función también gestiona el valor de las variables en un diccionario global llamado `variables`.
-        Además, verifica si las variables utilizadas están definidas y maneja errores cuando los tipos de datos son incompatibles para ciertas operaciones.
+        La función `buscar_variable` busca una variable en los ámbitos disponibles.
+        Comienza desde el ámbito más interno (el más reciente) y avanza hacia el más externo,
+        verificando si la variable está definida. Si se encuentra, se devuelve el valor de la variable
+        junto con `True`. Si no se encuentra en ningún ámbito, devuelve `None` y `False`.
         ***
     '''
-    # Manejar la declaración de variables
+     
+    for ambito in reversed(ambitos):
+        if nombre_variable in ambito:
+            return ambito[nombre_variable], True
+    return None,False  # Si no se encuentra en ningún ámbito
+
+def interpretar_operacion(tokens, archivo, indentacion):
+    '''
+        interpretar_operacion(tokens, archivo, indentacion)
+        ----------------------------
+        Procesa y ejecuta una operación basada en los tokens proporcionados, escribiendo el código 
+        resultante en el archivo especificado.
+
+        Parámetros:
+        - tokens (list): Una lista de tokens que representa la operación a realizar. Los tokens 
+        incluyen la instrucción, las variables y los operadores.
+        - archivo (file object): El archivo donde se escribirá el código Python generado.
+        - indentacion (int): El nivel de indentación para el código generado.
+
+        Retorno:
+        None
+
+        La función `interpretar_operacion` interpreta los tokens y realiza diferentes operaciones 
+        basadas en el tipo de instrucción (`DEFINE`, `DP`, `MOSTRAR`). Dependiendo de la instrucción, 
+        la función puede definir variables, realizar asignaciones y operaciones aritméticas, y 
+        escribir el resultado en el archivo. La función también maneja errores de tipo y variables 
+        no definidas, y escribe el código Python correspondiente en el archivo.
+        '''
+    ambito_actual = ambitos[-1]
+
     if tokens[0] == 'DEFINE':
         nombre_variable = tokens[1].replace("$_", "")
 
-        # Verificar si la variable ya ha sido definida previamente
-        if nombre_variable in variables:
-            levantar_error('VariableExistente', indice + 1, nombre_variable)
+        # Verificar si la variable ya ha sido definida previamente en el mismo ámbito
+        if nombre_variable in ambito_actual:
+            levantar_error('VariableExistente', instruccion + 1, nombre_variable)
+        # Guardar el valor original si la variable ya existe en un ámbito superior
+        valor_anterior, existe_variable = buscar_variable(nombre_variable)
+
+        if existe_variable:
+            ambito_actual[f'_backup_{nombre_variable}'] = valor_anterior
         
-        # Si la variable no está definida, se agrega al diccionario con un valor inicial de None
-        variables[nombre_variable] = None
+        # Redefinir la variable en el ámbito actual
+        ambito_actual[nombre_variable] = None
         archivo.write(f'{"\t" * indentacion}{nombre_variable} = None\n')
 
-    # Manejar la asignación y operaciones (DP)  
     elif tokens[0] == 'DP':
         variableDestino = tokens[1].replace("$_", "")
+        valor_variableDestino, existeVariable = buscar_variable(variableDestino)
 
-        # Verificar si la variable de destino ha sido definida
-        if variableDestino not in variables:
-            levantar_error("NoDefinida", indice + 1, variableDestino)
+        if not existeVariable:
+            levantar_error("NoDefinida", instruccion, variableDestino)
 
         operador = tokens[2]
         valorUno, tipoUno = interpretar_valor(tokens[3])
 
-        # Si el valor es una variable, obtener su valor real
         if tipoUno == 'variable':
-            if valorUno in variables:
-                contenidoValorUno = variables[valorUno]
-                tipoUno = type(contenidoValorUno).__name__
-                valorUno = contenidoValorUno  # Actualizar con el valor real de la variable
+            valor_variableUno, _ = buscar_variable(valorUno)
+            if valor_variableUno is not None:
+                tipoUno = type(valor_variableUno).__name__
+                valorUno = valor_variableUno
             else:
-                levantar_error("NoDefinida", indice + 1, valorUno)
-        
-        # Manejo de la operación de asignación (ASIG)
+                levantar_error("NoDefinida", instruccion, valorUno)
+
         if operador == 'ASIG':
+            ambito_actual[variableDestino] = valorUno
             archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno}\n')
-            variables[variableDestino] = valorUno  # Actualizamos el valor en el diccionario de variables
+
         else:
-            # Para otras operaciones (+, *, >, ==) se procesa un segundo valor
             valorDos, tipoDos = interpretar_valor(tokens[4])
 
-            # Si el segundo valor es una variable, obtener su valor real
             if tipoDos == 'variable':
-                if valorDos in variables:
-                    contenidoValorDos = variables[valorDos]
-                    tipoDos = type(contenidoValorDos).__name__
-                    valorDos = contenidoValorDos  # Actualizar con el valor real de la variable
+                valor_variableDos, _ = buscar_variable(valorDos)
+                if valor_variableDos is not None:
+                    tipoDos = type(valor_variableDos).__name__
+                    valorDos = valor_variableDos
                 else:
-                    levantar_error("NoDefinida", indice + 1, valorDos)
+                    levantar_error("NoDefinida", instruccion, valorDos)
 
-            # Manejo de operaciones aritméticas y comparativas
             if operador == '+':
-                if tipoUno == 'str' or tipoDos == 'str': # Concatenación de strings
-                    # Manejo de concatenación de strings
+                if tipoUno == 'str' or tipoDos == 'str':
+                    if tipoUno == 'bool' or tipoDos == 'bool':
+                        levantar_error("Tipodato", instruccion, "Error en la suma. Tipos incompatibles.")
                     archivo.write(f'{"\t" * indentacion}{variableDestino} = str({valorUno}) {operador} str({valorDos})\n')
-                    variables[variableDestino] = str(valorUno) + str(valorDos)  # Actualizar el valor concatenado
-                elif tipoUno == 'int' and tipoDos == 'int': # Suma de enteros
+                    ambito_actual[variableDestino] = str(valorUno) + str(valorDos)
+                elif tipoUno == 'int' and tipoDos == 'int':
                     archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno} {operador} {valorDos}\n')
-                    variables[variableDestino] = valorUno + valorDos  # Actualizar el valor de la suma
+                    ambito_actual[variableDestino] = valorUno + valorDos
                 else:
-                    levantar_error("Tipodato", indice + 1, "Error en la suma. Tipos incompatibles.")
+                    levantar_error("Tipodato", instruccion, "Error en la suma. Tipos incompatibles.")
 
             elif operador == '*':
-                if tipoUno == 'int' and tipoDos == 'int': # Multiplicación de enteros
+                if tipoUno == 'int' and tipoDos == 'int':
                     archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno} {operador} {valorDos}\n')
-                    variables[variableDestino] = valorUno * valorDos  # Actualizar el valor de la multiplicación
+                    ambito_actual[variableDestino] = valorUno * valorDos
                 else:
-                    levantar_error("Tipodato", indice + 1, "Error en la multiplicación. Tipos incompatibles.")
+                    levantar_error("Tipodato", instruccion, "Error en la multiplicación. Tipos incompatibles.")
 
             elif operador == '>':
-                if tipoUno == 'int' and tipoDos == 'int': # Comparación "mayor que"
+                if tipoUno == 'int' and tipoDos == 'int':
                     archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno} {operador} {valorDos}\n')
-                    variables[variableDestino] = valorUno > valorDos  # Actualizar el valor de la comparación
+                    ambito_actual[variableDestino] = valorUno > valorDos
                 else:
-                    levantar_error("Tipodato", indice + 1, "Error en la comparación. Tipos incompatibles.")
+                    levantar_error("Tipodato", instruccion, "Error en la comparación. Tipos incompatibles.")
 
             elif operador == '==':
-                if tipoUno == tipoDos: # Comparación de igualdad
+                if tipoUno == tipoDos:
+                    if tipoUno == 'bool' or tipoDos == 'bool':
+                        levantar_error("Tipodato", instruccion, "Error en la comparación. Tipos incompatibles.")
                     archivo.write(f'{"\t" * indentacion}{variableDestino} = {valorUno} {operador} {valorDos}\n')
-                    variables[variableDestino] = valorUno == valorDos  # Actualizar el valor de la comparación
+                    ambito_actual[variableDestino] = valorUno == valorDos
                 else:
-                    levantar_error("Tipodato", indice + 1, "Error en la comparación. Tipos incompatibles.")
-    
-    # Manejar la operación de mostrar valores (MOSTRAR)
+                    levantar_error("Tipodato", instruccion, "Error en la comparación. Tipos incompatibles.")
+
     elif tokens[0] == 'MOSTRAR':
         variableDestino = tokens[1].replace("$_", "")
-        archivo.write(f"{"\t" * indentacion}with open('output.txt', 'a') as archivo:\n{"\t" * (indentacion + 1)}archivo.write(str({variableDestino}) + \"\\n\")\n")
-
+        valor_variableDestino, _ = buscar_variable(variableDestino)
+        if valor_variableDestino is None:
+            levantar_error("NoDefinida", instruccion, variableDestino)
+        archivo.write(f'{"\t" * indentacion}with open("output.txt", "a") as archivo:\n{"\t" * (indentacion + 1)}archivo.write(str({variableDestino}) + "\\n")\n')
 
 def interpretar(tokens):
     '''
-        ***
+        interpretar(tokens)
+        ---------------------
+        Interpreta una lista de tokens y convierte las instrucciones en código Python, 
+        escribiéndolo en un archivo. Maneja bloques de código, estructuras condicionales 
+        y operaciones.
+
         Parámetros:
-        - tokens (tuple or list): Representa una instrucción o un conjunto de instrucciones a interpretar.
-        ***
+        - tokens (list): Una lista de tokens que representa el código a interpretar.
+
         Retorno:
         None
-        ***
-        La función interpretar procesa una lista o tupla de tokens que representan las operaciones a realizar y las escribe en un archivo Python para su posterior ejecución.
-        Maneja bloques de código, como condicionales `if` y `else`, ajusta la indentación para reflejar correctamente la estructura del código, y llama a la función interpretar_operacion para procesar cada operación individual.
-        Finalmente, ejecuta el contenido del archivo generado y muestra el estado de las variables después de la ejecución.
-        ***
+
+        La función `interpretar` recorre los tokens y escribe el código Python equivalente 
+        en el archivo `codigo_interpretado.py`. Maneja estructuras de control como `if` y 
+        `else`, así como bloques de código delimitados por `{` y `}`. La función también 
+        llama a `interpretar_operacion` para procesar las operaciones individuales y 
+        mantiene el nivel de indentación para asegurar que el código generado sea 
+        sintácticamente correcto.
     '''
-    # para depurar print(tokens)
     indentacion = 0
+    global instruccion
     with open("codigo_interpretado.py", 'a') as archivo:
 
         if isinstance(tokens, tuple):
+            instruccion = instruccion + 1
             interpretar_operacion(tokens, archivo, indentacion)
         
         elif isinstance(tokens, list):
             i = 0
             while i < len(tokens):
+                
                 if tokens[i][0] == 'if':
-                    # Analizar y escribir la condición de un bloque if
+                    instruccion = instruccion + 1
                     condicion, tipo_condicion = interpretar_valor(tokens[i][1])
                     if tipo_condicion == 'bool':
                         archivo.write(f'{"\t" * indentacion}if {condicion}:\n')
                     elif tipo_condicion == 'variable':
-                        if variables.get(condicion) is not None and isinstance(variables[condicion], bool):
+                        valor_condicion, _ = buscar_variable(condicion)
+                        if valor_condicion is not None and isinstance(valor_condicion, bool):
                             archivo.write(f'{"\t" * indentacion}if {condicion}:\n')
                         else:
-                            levantar_error("Tipodato", indice + 1, f"La variable {condicion} no es booleana.")
+                            levantar_error("Tipodato", instruccion, f"La variable {condicion} no es booleana.")
                     else:
-                        levantar_error("Tipodato", indice + 1, f"La condición {condicion} no es un booleano válido.")
+                        levantar_error("Tipodato", instruccion, f"La condición {condicion} no es un booleano válido.")
                     
                 elif tokens[i] == '{':
-                    # Detecta el inicio de un bloque, aumentando la indentación
                     indentacion += 1
+                    ambitos.append({})
 
                     # Verificar si el próximo token es un '}', lo que indicaría un bloque vacío
                     if i + 1 < len(tokens) and tokens[i + 1] == '}':
@@ -235,11 +281,22 @@ def interpretar(tokens):
                         i += 1
 
                 elif tokens[i] == '}':
-                    # Detecta el fin de un bloque, disminuyendo la indentación
+
+                    for variable, valor in ambitos[-1].items():
+                        if variable.startswith('_backup_'):
+                            nombre_original = variable.replace('_backup_', '')
+                            # Restaurar el valor del ámbito superior si fue redefinida
+                            archivo.write(f'{"\t" * indentacion }{nombre_original} = {valor}\n')
                     indentacion -= 1
+                    
+                    
+                    ambitos.pop()
+                    
+
+                    
 
                 elif tokens[i] == 'else':
-                    # Manejo de la estructura else con la indentación correspondiente
+                    instruccion = instruccion + 1
                     archivo.write(f'{"\t" * indentacion}else:\n')
 
                     # Verificar si el próximo token es un '{', lo que indicaría el inicio de un bloque
@@ -249,13 +306,13 @@ def interpretar(tokens):
                             archivo.write(f'{"\t" * (indentacion + 1)}pass\n')
                             # Saltar el siguiente '{' y '}' para evitar escribir 'pass' nuevamente
                             i += 2
+                    
 
                 elif isinstance(tokens[i], tuple):
-                    # Procesar operaciones individuales dentro de la lista de tokens
+                    instruccion = instruccion + 1
                     interpretar_operacion(tokens[i], archivo, indentacion)
 
                 i += 1
-
 
 def analizar_sintaxis(codigo_fuente, max_anidamiento):
     '''

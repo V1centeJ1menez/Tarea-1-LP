@@ -1,0 +1,11 @@
+DEFINE $_Var
+DEFINE $_Cond
+DP $_Var ASIG 1
+DP $_Cond == 1 1
+if($_Cond) {
+    DEFINE $_Var
+    DP $_Var ASIG 2
+    MOSTRAR($_Var)
+} else {
+}
+MOSTRAR($_Var)

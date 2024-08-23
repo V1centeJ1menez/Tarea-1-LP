@@ -1,3 +1,6 @@
 DEFINE $_VarUno
 DP $_VarUno ASIG 10
-DP $_VarDos ASIG 20 
+DEFINE $_Texto
+DP $_Texto ASIG ##
+DP $_Texto + #HOLA# $_Texto
+MOSTRAR($_Texto)

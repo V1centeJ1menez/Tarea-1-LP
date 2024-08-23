@@ -1,7 +1,7 @@
 DEFINE $_Numero
 DEFINE $_NumeroC
 DEFINE $_CondUno
-DP $_Numero ASIG 1
+DP $_Numero ASIG 100
 DP $_CondUno > $_Numero 0
 if ($_CondUno) {
     DEFINE $_CondDos

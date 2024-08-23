@@ -17,6 +17,7 @@ if ($_Cond) {
         DP $_A ASIG 8
         DEFINE $_B
         DP $_B == $_A 8
+        MOSTRAR($_Texto)
     } else {
         DEFINE $_Texto
         DP $_Texto ASIG #Numero Uno es menor a Numero Dos#

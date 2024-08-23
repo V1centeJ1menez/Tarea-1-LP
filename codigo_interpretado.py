@@ -1,20 +1,28 @@
-Valor = None
-Valor = 25
-Texto = None
-A = None
-A = 25 > 30
-if A:
-	Texto = "El valor es mayor que 30"
-	with open('output.txt', 'a') as archivo:
-		archivo.write(str(Texto) + "\n")
-else:
-	A = 25 > 20
-	if A:
-		Texto = "El valor es mayor que 20 pero menor o igual a 30"
-		Texto = str("El valor es mayor que 20 pero menor o igual a 30") + str(True)
-		with open('output.txt', 'a') as archivo:
-			archivo.write(str(Texto) + "\n")
+Var = None
+Cond = None
+Var = 1
+Cond = 1 == 1
+with open("output.txt", "a") as archivo:
+	archivo.write(str(Var) + "\n")
+if Cond:
+	Var = None
+	Var = 2
+	with open("output.txt", "a") as archivo:
+		archivo.write(str(Var) + "\n")
+	if Cond:
+		Var = None
+		Var = "HOLA"
+		with open("output.txt", "a") as archivo:
+			archivo.write(str(Var) + "\n")
+		Var = 2
 	else:
-		Texto = "El valor es 20 o menor"
-		with open('output.txt', 'a') as archivo:
-			archivo.write(str(Texto) + "\n")
+		pass
+	Var = 1
+else:
+	Var = None
+	Var = " ELSE"
+	with open("output.txt", "a") as archivo:
+		archivo.write(str(Var) + "\n")
+	Var = 1
+with open("output.txt", "a") as archivo:
+	archivo.write(str(Var) + "\n")
